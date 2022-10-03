@@ -5,8 +5,7 @@
 </template>
 
 <script>
-import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
+
 export default {
   data() {
       return {
@@ -44,8 +43,8 @@ export default {
       },
 
       createMap() {
-          mapboxgl.accessToken = this.access_token;
-          this.map = new mapboxgl.Map({
+          this.$mapboxgl.accessToken = this.access_token;
+          this.map = new this.$mapboxgl.Map({
               container: "map",
               style: "mapbox://styles/mapbox/streets-v11",
               zoom: 11,
@@ -58,7 +57,7 @@ export default {
               attributionControl: false,
           });
 
-          this.marker = new mapboxgl.Marker({
+          this.marker = new this.$mapboxgl.Marker({
               color: "#FFFFFF",
               draggable: true,
           })
@@ -67,8 +66,8 @@ export default {
 
           // this.map.addControl(
           //     new MapboxGeocoder({
-          //         accessToken: mapboxgl.accessToken,
-          //         mapboxgl: mapboxgl,
+          //         accessToken: this.$mapboxgl.accessToken,
+          //         this.$mapboxgl: this.$mapboxgl,
           //     })
           // );
 
