@@ -1,20 +1,35 @@
 <template>
-  <div>
-      <div id="map" style="width: 100%; height: 100vh"></div>
-  </div>
+  <b-container>
+    <div class="p-6 mt-2">
+        <h1 class="pb-2">Mapbpox testing</h1>
+        <b-input v-model="search" class="mb-3" style="postion:absolute;"></b-input>
+        <div id="map" style="width: 100%; height: 500px; position: relative; overflow: hidden;">
+        </div>
+    </div>
+  </b-container>
 </template>
 
 <script>
 
 export default {
+  watch: {
+    search: {
+        deep: true,
+        handler(val) {
+            console.log(val)
+        },
+    } 
+
+  },
   data() {
       return {
           access_token:
               "pk.eyJ1IjoiZWxnZXJhcmRvIiwiYSI6ImNsOG90NjFtMzFucG0zeWw1YWRheTV5ZmYifQ.87BCgCSXpjLIHkqGsWUW7g",
           map: {},
-          lng: 107.61861,
-          lat: -6.90389,
+          lng: null,
+          lat: null,
           marker: {},
+          search: null
       };
   },
 
@@ -24,22 +39,11 @@ export default {
 
   methods: {
       init() {
-          let successCallback = (location) => {
-              this.success = true;
+          this.lat = 32.715736;
+          this.lng =  -117.161087;
 
-              (this.lat = location.coords.latitude),
-                  (this.lng = location.coords.longitude),
-                  this.createMap();
-          };
-
-          let errorCallback = (location) => {
-              console.log("Error Location");
-          };
-
-          navigator.geolocation.getCurrentPosition(
-              successCallback,
-              errorCallback
-          );
+          this.createMap();
+          this.setMarker(this.lat, this.lng);
       },
 
       createMap() {
@@ -57,19 +61,8 @@ export default {
               attributionControl: false,
           });
 
-          this.marker = new this.$mapboxgl.Marker({
-              color: "#FFFFFF",
-              draggable: true,
-          })
-              .setLngLat([this.lng, this.lat])
-              .addTo(this.map);
+          
 
-          // this.map.addControl(
-          //     new MapboxGeocoder({
-          //         accessToken: this.$mapboxgl.accessToken,
-          //         this.$mapboxgl: this.$mapboxgl,
-          //     })
-          // );
 
           this.map.on("click", (event) => {
               this.lat = parseFloat(event.lngLat.lat);
@@ -78,56 +71,16 @@ export default {
               this.marker.setLngLat([this.lng, this.lat]);
           });
 
-          this.map.on("load", () => {
-              // Insert the layer beneath any symbol layer.
-              const layers = this.map.getStyle().layers;
-              const labelLayerId = layers.find(
-                  (layer) =>
-                      layer.type === "symbol" && layer.layout["text-field"]
-              ).id;
-
-              // The 'building' layer in the Mapbox Streets
-              // vector tileset contains building height data
-              // from OpenStreetMap.
-              this.map.addLayer(
-                  {
-                      id: "add-3d-buildings",
-                      source: "composite",
-                      "source-layer": "building",
-                      filter: ["==", "extrude", "true"],
-                      type: "fill-extrusion",
-                      minzoom: 15,
-                      paint: {
-                          "fill-extrusion-color": "#aaa",
-
-                          // Use an 'interpolate' expression to
-                          // add a smooth transition effect to
-                          // the buildings as the user zooms in.
-                          "fill-extrusion-height": [
-                              "interpolate",
-                              ["linear"],
-                              ["zoom"],
-                              15,
-                              0,
-                              15.05,
-                              ["get", "height"],
-                          ],
-                          "fill-extrusion-base": [
-                              "interpolate",
-                              ["linear"],
-                              ["zoom"],
-                              15,
-                              0,
-                              15.05,
-                              ["get", "min_height"],
-                          ],
-                          "fill-extrusion-opacity": 0.6,
-                      },
-                  },
-                  labelLayerId
-              );
-          });
       },
+
+      setMarker(lat, lng) {
+        this.marker = new this.$mapboxgl.Marker({
+              color: "#4E04AF",
+              draggable: true,
+          })
+              .setLngLat([lng, lat])
+              .addTo(this.map);
+      }
   },
 };
 </script>
