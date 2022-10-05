@@ -25,7 +25,16 @@ export default {
     {
       src: "./plugins/mapboxgl.js",
       mode: 'client' 
+    },
+    {
+      src: "./plugins/mapboxsearch.js",
+      mode: 'client' 
+    },
+    {
+      src: "./plugins/geocode.js",
+      mode: 'client' 
     }
+
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
