@@ -1,7 +1,7 @@
 <template>
     <b-container>
        <div class="p-6 mt-2">
-          <h1 class="pb-2">Mapbpox testing</h1>
+          <h1 class="pb-2">Mapbox testing</h1>
           <b-form
              id="event-type-form"
              autocomplete="off"
@@ -12,25 +12,10 @@
                 label-for="address"
                 label-class="font-size-14"
                 >
-                <b-form-input autocomplete="shipping address-line1" v-model="form.address" class="mb-3" style="postion:absolute;"></b-form-input>
-             </b-form-group>
-
-             <b-form-group
-                label="City"
-                label-for="city"
-                label-class="font-size-14"
-                >
-                <b-form-input autocomplete="shipping address-level2" v-model="form.city" class="mb-3" style="postion:absolute;"></b-form-input>
-             </b-form-group>
-
-             <b-form-group
-                label="State"
-                label-for="state"
-                label-class="font-size-14"
-                >
-                <b-form-input autocomplete="shipping address-level1" v-model="form.state" class="mb-3" style="postion:absolute;"></b-form-input>
+                <b-form-input autocomplete="shipping address-line1" placeholder="Enter address..." v-model="form.address" class="mb-3" style="postion:absolute;"></b-form-input>
              </b-form-group>
           </b-form>
+          <pre>{{filtered_feature}}</pre>
           <div id="map" style="width: 100%; height: 500px; position: relative; overflow: hidden;">
           </div>
        </div>
@@ -38,7 +23,7 @@
  </template>
 
 <script>
-
+import { mapGetters } from "vuex";
 export default {
   data() {
       return {
@@ -50,8 +35,10 @@ export default {
             lat: null,
           },
           
-          marker: {},
-          form: {},
+          marker: null,
+          form: {
+            address: null,
+          },
           search: null
       };
   },
@@ -59,6 +46,24 @@ export default {
   mounted() {
       this.init();
   },
+
+  computed: {
+        ...mapGetters({
+            items: "geocode/items"
+        }),
+
+        filtered_feature() {
+            if (!this.items.features.length) {
+                return;
+
+            }
+            else {
+                this.form.address = this.items.features[0].place_name;
+            }
+            
+
+        }
+    },
 
   methods: {
       init() {
@@ -106,11 +111,16 @@ export default {
                         duration: 2500,
                         curve: 2,
                         });
-                this.setMarker(this.coordinates.lat, this.coordinates.lng )
+                if (this.marker) {
+                    this.onMoveMarker(this.coordinates.lat, this.coordinates.lng )
+                }
+                else {
+                    this.setMarker(this.coordinates.lat, this.coordinates.lng )
+                }
+                
             });
 
             this.marker.on("dragend", (event) => {
-                console.log(event)
                 this.coordinates.lat = this.marker.getLngLat().lat;
                 this.coordinates.lng = this.marker.getLngLat().lng;
                 this.map.easeTo({
@@ -120,7 +130,8 @@ export default {
                         duration: 2500,
                         curve: 2,
                         });
-                this.onMoveMarker(this.coordinates.lat, this.coordinates.lng )
+                this.onMoveMarker(this.coordinates.lat, this.coordinates.lng );
+                this.$store.dispatch("geocode/reverse_geocode", this.coordinates)
             })
 
 
